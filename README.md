@@ -1,3 +1,5 @@
+![](./assets/screenshot.png)
+
 # Prorez
 
 Drag & drop video converter for DaVinci Resolve on Linux.
@@ -71,7 +73,27 @@ Output files are saved as `prorez_convert_[original_name].[ext]` in the source f
 | DNxHR SQ | Avid DNxHR | MOV | Proxy Editing |
 | Custom Arguments | User-defined | — | Full FFmpeg control |
 
+## Roadmap
+
+- [ ] **RPM package** — `.rpm` for Fedora/RHEL (via COPR)
+- [ ] **Flatpak** — universal Linux package on Flathub
+
+## Contributing
+
+Pull requests are welcome. For major changes, open an issue first to discuss what you'd like to change.
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a pull request
+
 ## Credits
+
+- Built with [DeepSeek V4](https://deepseek.com) (vibe coding)
+- Instagram: [@dezuhan](https://instagram.com/dezuhan)
+- LinkedIn: [in/dzuhan](https://linkedin.com/in/dzuhan)
+- GitHub: [@dezuhan](https://github.com/dezuhan)
 
 - Instagram: [@dezuhan](https://instagram.com/dezuhan)
 - LinkedIn: [in/dzuhan](https://linkedin.com/in/dzuhan)
