@@ -95,10 +95,6 @@ Pull requests are welcome. For major changes, open an issue first to discuss wha
 - LinkedIn: [in/dzuhan](https://linkedin.com/in/dzuhan)
 - GitHub: [@dezuhan](https://github.com/dezuhan)
 
-- Instagram: [@dezuhan](https://instagram.com/dezuhan)
-- LinkedIn: [in/dzuhan](https://linkedin.com/in/dzuhan)
-- GitHub: [@dezuhan](https://github.com/dezuhan)
-
 ## License
 
 [GNU GPLv2](LICENSE)
