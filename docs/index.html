@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Drag & drop video converter for DaVinci Resolve on Linux. GPU-accelerated ProRes & DNxHR encoding with PCM audio.">
+  <meta name="author" content="Dezuhan">
+  <meta property="og:title" content="Prorez — Video Converter for DaVinci Resolve Linux">
+  <meta property="og:description" content="Drag & drop FFmpeg GUI. GPU-accelerated ProRes & DNxHR encoding.">
+  <meta property="og:image" content="assets/Screenshot_Dark_Mode.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Prorez — Video Converter for DaVinci Resolve Linux</title>
+  <script>
+    (function() {
+      var s = localStorage.getItem('theme');
+      var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (s === 'dark' || (!s && d)) document.documentElement.setAttribute('data-theme', 'dark');
+      else document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'aw-bg': 'rgb(var(--aw-bg) / <alpha-value>)',
+            'aw-surface': 'rgb(var(--aw-surface) / <alpha-value>)',
+            'aw-header': 'rgb(var(--aw-header) / <alpha-value>)',
+            'aw-text': 'rgb(var(--aw-text) / <alpha-value>)',
+            'aw-dim': 'rgb(var(--aw-dim) / <alpha-value>)',
+            'aw-accent': 'rgb(var(--aw-accent) / <alpha-value>)',
+            'aw-green': 'rgb(var(--aw-green) / <alpha-value>)',
+            'aw-red': 'rgb(var(--aw-red) / <alpha-value>)',
+            'aw-orange': 'rgb(var(--aw-orange) / <alpha-value>)',
+            'aw-border': 'rgb(var(--aw-border) / <alpha-value>)',
+            'aw-code': 'rgb(var(--aw-code) / <alpha-value>)',
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          borderRadius: {
+            'gtk': '8px',
+            'gtk-lg': '12px',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --aw-bg: 250 250 250;
+      --aw-surface: 255 255 255;
+      --aw-header: 235 235 235;
+      --aw-text: 46 52 54;
+      --aw-dim: 94 92 100;
+      --aw-accent: 53 132 228;
+      --aw-green: 38 162 105;
+      --aw-red: 192 28 40;
+      --aw-orange: 181 131 0;
+      --aw-border: 205 199 194;
+      --aw-code: 240 240 240;
+    }
+
+    [data-theme="dark"] {
+      --aw-bg: 36 36 36;
+      --aw-surface: 45 45 45;
+      --aw-header: 48 48 48;
+      --aw-text: 255 255 255;
+      --aw-dim: 154 153 150;
+      --aw-accent: 53 132 228;
+      --aw-green: 51 209 122;
+      --aw-red: 224 27 36;
+      --aw-orange: 229 165 10;
+      --aw-border: 61 61 61;
+      --aw-code: 26 26 26;
+    }
+
+    .copy-btn { opacity: 0.5; transition: opacity .15s; }
+    .code-block:hover .copy-btn { opacity: 1; }
+    .tab-btn.active { background-color: #3584e4; color: #fff; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::marker { display: none; content: ''; }
+    .faq-chevron { transition: transform .2s; }
+    details[open] .faq-chevron { transform: rotate(180deg); }
+  </style>
+</head>
+<body class="bg-aw-bg text-aw-text font-sans font-normal antialiased">
+
+<!-- Nav -->
+<header class="sticky top-0 z-50 bg-aw-header/95 backdrop-blur border-b border-aw-border">
+  <div class="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
+    <a href="#hero" class="text-lg font-bold tracking-tight flex items-center gap-2 nav-link flex-shrink-0">
+      <span class="text-aw-accent">▣</span> Prorez
+    </a>
+    <button id="menu-btn" class="md:hidden p-1 rounded-gtk hover:bg-aw-border/40" aria-label="Menu">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <nav id="nav-links" class="hidden md:flex items-center gap-5 text-sm font-medium">
+      <a href="#features" class="nav-link hover:text-aw-accent transition-colors">Features</a>
+      <a href="#how" class="nav-link hover:text-aw-accent transition-colors">How It Works</a>
+      <a href="#presets" class="nav-link hover:text-aw-accent transition-colors">Presets</a>
+      <a href="#install" class="nav-link hover:text-aw-accent transition-colors">Install</a>
+      <a href="#usage" class="nav-link hover:text-aw-accent transition-colors">Usage</a>
+      <a href="#faq" class="nav-link hover:text-aw-accent transition-colors">FAQ</a>
+      <a href="https://github.com/dezuhan/prorez" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 border border-aw-border hover:border-aw-dim text-aw-text px-3 py-1.5 rounded-gtk transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <button id="theme-btn" class="inline-flex items-center justify-center border border-aw-border hover:border-aw-dim text-aw-text w-8 h-8 rounded-gtk transition-colors" aria-label="Toggle theme" title="Theme: system → light → dark">
+        <svg id="theme-icon-system" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <svg id="theme-icon-light" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <svg id="theme-icon-dark" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+    </nav>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden border-t border-aw-border bg-aw-header pb-3 px-4 flex flex-col gap-2 text-sm font-medium">
+    <a href="#features" class="nav-link py-1 hover:text-aw-accent">Features</a>
+    <a href="#how" class="nav-link py-1 hover:text-aw-accent">How It Works</a>
+    <a href="#presets" class="nav-link py-1 hover:text-aw-accent">Presets</a>
+    <a href="#install" class="nav-link py-1 hover:text-aw-accent">Install</a>
+    <a href="#usage" class="nav-link py-1 hover:text-aw-accent">Usage</a>
+    <a href="#faq" class="nav-link py-1 hover:text-aw-accent">FAQ</a>
+    <a href="https://github.com/dezuhan/prorez" class="py-1 text-aw-dim hover:text-aw-text" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</header>
+
+<main>
+
+<!-- Hero -->
+<section id="hero" class="max-w-5xl mx-auto px-4 py-16 md:py-24 text-center">
+  <div class="flex items-center justify-center gap-3 mb-4">
+    <span class="text-aw-accent text-3xl">▣</span>
+    <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Prorez</h1>
+  </div>
+  <p class="text-lg md:text-xl text-aw-dim max-w-xl mx-auto mb-8">
+    Drag &amp; drop video converter for DaVinci Resolve on Linux.
+    GPU-accelerated ProRes &amp; DNxHR encoding with PCM audio.
+  </p>
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+    <a href="https://github.com/dezuhan/prorez/releases/latest" class="inline-flex items-center gap-2 bg-aw-accent hover:opacity-90 text-white font-semibold px-6 py-3 rounded-gtk transition-colors">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Download Latest Release
+    </a>
+    <a href="https://github.com/dezuhan/prorez" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-aw-border hover:border-aw-dim text-aw-text font-semibold px-6 py-3 rounded-gtk transition-colors">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+  <div class="rounded-gtk-lg border border-aw-border overflow-hidden shadow-2xl">
+    <img id="screenshot" src="assets/Screenshot_Dark_Mode.png" alt="Prorez Screenshot" class="w-full" loading="lazy">
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Features</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Everything you need</h2>
+    <p class="text-aw-dim mt-3 max-w-lg mx-auto">Convert video files to DaVinci Resolve-compatible formats with GPU-accelerated encoding.</p>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 hover:border-aw-dim transition-colors">
+      <div class="w-10 h-10 rounded-gtk bg-aw-accent/15 flex items-center justify-center mb-4">
+        <svg class="w-5 h-5 text-aw-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+      </div>
+      <h3 class="font-bold mb-2">Drag &amp; Drop</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Drop video files onto the window or click to browse. Instant queue for batch conversion.</p>
+    </div>
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 hover:border-aw-dim transition-colors">
+      <div class="w-10 h-10 rounded-gtk bg-aw-green/15 flex items-center justify-center mb-4">
+        <svg class="w-5 h-5 text-aw-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+      </div>
+      <h3 class="font-bold mb-2">GPU Auto-Detect</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">NVIDIA NVENC, Intel VA-API / QSV, AMD AMF — automatically detected and configured.</p>
+    </div>
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 hover:border-aw-dim transition-colors">
+      <div class="w-10 h-10 rounded-gtk bg-aw-orange/15 flex items-center justify-center mb-4">
+        <svg class="w-5 h-5 text-aw-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+      </div>
+      <h3 class="font-bold mb-2">ProRes &amp; DNxHR</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Apple ProRes 422 HQ/LT and Avid DNxHR HQ/SQ for mastering, color grading, and proxy editing.</p>
+    </div>
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 hover:border-aw-dim transition-colors">
+      <div class="w-10 h-10 rounded-gtk bg-aw-dim/15 flex items-center justify-center mb-4">
+        <svg class="w-5 h-5 text-aw-dim" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </div>
+      <h3 class="font-bold mb-2">Light / Dark Theme</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Toggle between light and dark GTK themes. Your preference is saved automatically.</p>
+    </div>
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 hover:border-aw-dim transition-colors">
+      <div class="w-10 h-10 rounded-gtk bg-aw-accent/15 flex items-center justify-center mb-4">
+        <svg class="w-5 h-5 text-aw-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <h3 class="font-bold mb-2">Queue + Progress</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">File queue with real-time progress, FPS, and speed. Handle multiple files effortlessly.</p>
+    </div>
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 hover:border-aw-dim transition-colors">
+      <div class="w-10 h-10 rounded-gtk bg-aw-green/15 flex items-center justify-center mb-4">
+        <svg class="w-5 h-5 text-aw-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <h3 class="font-bold mb-2">Custom FFmpeg Args</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Full control with custom FFmpeg arguments. Tweak encoder, bitrate, filters, and more.</p>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section id="how" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">How It Works</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Three simple steps</h2>
+  </div>
+  <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-6 md:gap-8">
+    <div class="flex flex-col items-center text-center max-w-xs">
+      <div class="w-14 h-14 rounded-full bg-aw-accent/15 flex items-center justify-center mb-4 text-aw-accent text-xl font-bold">1</div>
+      <h3 class="font-bold mb-2">Drop Files</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Drag video files into the window, or click <strong>+ Add File</strong> to browse and select manually.</p>
+    </div>
+    <div class="hidden md:flex items-center pt-7 text-aw-dim">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="flex flex-col items-center text-center max-w-xs">
+      <div class="w-14 h-14 rounded-full bg-aw-accent/15 flex items-center justify-center mb-4 text-aw-accent text-xl font-bold">2</div>
+      <h3 class="font-bold mb-2">Select Preset</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Pick a preset matching your workflow — ProRes, DNxHR, or Custom Arguments for full control.</p>
+    </div>
+    <div class="hidden md:flex items-center pt-7 text-aw-dim">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </div>
+    <div class="flex flex-col items-center text-center max-w-xs">
+      <div class="w-14 h-14 rounded-full bg-aw-accent/15 flex items-center justify-center mb-4 text-aw-accent text-xl font-bold">3</div>
+      <h3 class="font-bold mb-2">Convert</h3>
+      <p class="text-aw-dim text-sm leading-relaxed">Click <strong>Convert All</strong> and let Prorez handle the rest. Track progress in the queue.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Presets Table -->
+<section id="presets" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Presets</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Choose your workflow</h2>
+    <p class="text-aw-dim mt-3 max-w-lg mx-auto">Ready-to-use presets for every stage of post-production.</p>
+  </div>
+  <div class="overflow-x-auto border border-aw-border rounded-gtk-lg bg-aw-surface">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-aw-border text-aw-dim text-left">
+          <th class="px-5 py-3 font-semibold">Preset</th>
+          <th class="px-5 py-3 font-semibold">Codec</th>
+          <th class="px-5 py-3 font-semibold">Container</th>
+          <th class="px-5 py-3 font-semibold">Use Case</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-aw-border">
+        <tr>
+          <td class="px-5 py-3 font-medium">ProRes 422 HQ</td>
+          <td class="px-5 py-3">Apple ProRes</td>
+          <td class="px-5 py-3">MOV</td>
+          <td class="px-5 py-3 text-aw-dim">Mastering, Color Grading</td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3 font-medium">ProRes 422 LT</td>
+          <td class="px-5 py-3">Apple ProRes</td>
+          <td class="px-5 py-3">MOV</td>
+          <td class="px-5 py-3 text-aw-dim">Proxy Editing</td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3 font-medium">DNxHR HQ</td>
+          <td class="px-5 py-3">Avid DNxHR</td>
+          <td class="px-5 py-3">MOV</td>
+          <td class="px-5 py-3 text-aw-dim">Professional Mastering</td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3 font-medium">DNxHR SQ</td>
+          <td class="px-5 py-3">Avid DNxHR</td>
+          <td class="px-5 py-3">MOV</td>
+          <td class="px-5 py-3 text-aw-dim">Proxy Editing</td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3 font-medium">Custom Arguments</td>
+          <td class="px-5 py-3">User-defined</td>
+          <td class="px-5 py-3">—</td>
+          <td class="px-5 py-3 text-aw-dim">Full FFmpeg Control</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Installation -->
+<section id="install" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Installation</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Get up and running</h2>
+    <p class="text-aw-dim mt-3 max-w-lg mx-auto">Install system dependencies, clone the repo, and you're ready to go.</p>
+  </div>
+
+  <div class="mb-8">
+    <div class="flex border border-aw-border rounded-gtk overflow-hidden w-fit">
+      <button class="tab-btn active px-4 py-2 text-sm font-medium transition-colors" data-tab="ubuntu">Ubuntu / Debian</button>
+      <button class="tab-btn px-4 py-2 text-sm font-medium transition-colors text-aw-dim hover:text-aw-text" data-tab="fedora">Fedora / RHEL</button>
+      <button class="tab-btn px-4 py-2 text-sm font-medium transition-colors text-aw-dim hover:text-aw-text" data-tab="arch">Arch</button>
+    </div>
+  </div>
+
+  <div id="tab-ubuntu" class="tab-content space-y-4">
+    <div class="code-block relative bg-aw-code border border-aw-border rounded-gtk-lg p-4 group">
+      <button class="copy-btn absolute top-3 right-3 text-xs px-2 py-1 rounded border border-aw-border transition-colors" data-copy="sudo apt install python3-gi gir1.2-gtk-3.0 ffmpeg">Copy</button>
+      <pre class="text-sm text-aw-green overflow-x-auto"><code>sudo apt install python3-gi gir1.2-gtk-3.0 ffmpeg</code></pre>
+    </div>
+  </div>
+  <div id="tab-fedora" class="tab-content hidden space-y-4">
+    <div class="code-block relative bg-aw-code border border-aw-border rounded-gtk-lg p-4 group">
+      <button class="copy-btn absolute top-3 right-3 text-xs px-2 py-1 rounded border border-aw-border transition-colors" data-copy="sudo dnf install python3-gobject gtk3 ffmpeg">Copy</button>
+      <pre class="text-sm text-aw-green overflow-x-auto"><code>sudo dnf install python3-gobject gtk3 ffmpeg</code></pre>
+    </div>
+  </div>
+  <div id="tab-arch" class="tab-content hidden space-y-4">
+    <div class="code-block relative bg-aw-code border border-aw-border rounded-gtk-lg p-4 group">
+      <button class="copy-btn absolute top-3 right-3 text-xs px-2 py-1 rounded border border-aw-border transition-colors" data-copy="sudo pacman -S python-gobject gtk3 ffmpeg">Copy</button>
+      <pre class="text-sm text-aw-green overflow-x-auto"><code>sudo pacman -S python-gobject gtk3 ffmpeg</code></pre>
+    </div>
+  </div>
+
+  <p class="text-aw-dim text-sm mt-4 mb-4">Clone and run — no virtual environment needed (all dependencies are system packages):</p>
+
+  <div class="code-block relative bg-aw-code border border-aw-border rounded-gtk-lg p-4 group">
+    <button class="copy-btn absolute top-3 right-3 text-xs px-2 py-1 rounded border border-aw-border transition-colors" data-copy="git clone https://github.com/dezuhan/prorez.git &amp;&amp; cd prorez &amp;&amp; python3 prorez.py">Copy</button>
+    <pre class="text-sm text-aw-green overflow-x-auto"><code>git clone https://github.com/dezuhan/prorez.git
+cd prorez
+python3 prorez.py</code></pre>
+  </div>
+</section>
+
+<!-- Usage -->
+<section id="usage" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Usage</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Simple and intuitive</h2>
+  </div>
+  <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6 md:p-8 space-y-5 max-w-2xl mx-auto">
+    <div class="code-block relative bg-aw-code border border-aw-border rounded-gtk p-4 group">
+      <button class="copy-btn absolute top-3 right-3 text-xs px-2 py-1 rounded border border-aw-border transition-colors" data-copy="python3 prorez.py">Copy</button>
+      <pre class="text-sm text-aw-green overflow-x-auto"><code>python3 prorez.py</code></pre>
+    </div>
+    <ol class="list-decimal list-inside space-y-3 text-aw-dim pl-2">
+      <li class="text-aw-text"><span class="text-aw-dim">Drag video files into the window (or click</span> <strong>+ Add File</strong><span class="text-aw-dim">)</span></li>
+      <li class="text-aw-text"><span class="text-aw-dim">Select a preset matching your workflow</span></li>
+      <li class="text-aw-text"><span class="text-aw-dim">Click</span> <strong>Convert All</strong></li>
+    </ol>
+    <p class="text-aw-dim text-sm border-t border-aw-border pt-4">
+      Output files are saved as <code class="bg-aw-bg px-1.5 py-0.5 rounded text-aw-green text-xs">prorez_convert_[original_name].[ext]</code> in the source folder by default.
+    </p>
+  </div>
+</section>
+
+<!-- Requirements -->
+<section id="requirements" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Requirements</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">System &amp; Hardware</h2>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6">
+      <h3 class="font-bold mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5 text-aw-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        System
+      </h3>
+      <ul class="space-y-2 text-sm text-aw-dim">
+        <li class="flex items-start gap-2"><span class="text-aw-green mt-0.5">✓</span> Linux (X11)</li>
+        <li class="flex items-start gap-2"><span class="text-aw-green mt-0.5">✓</span> Python 3.8+</li>
+        <li class="flex items-start gap-2"><span class="text-aw-green mt-0.5">✓</span> GTK 3</li>
+        <li class="flex items-start gap-2"><span class="text-aw-green mt-0.5">✓</span> FFmpeg (with ffprobe)</li>
+      </ul>
+    </div>
+    <div class="bg-aw-surface border border-aw-border rounded-gtk-lg p-6">
+      <h3 class="font-bold mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5 text-aw-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Optional GPU
+      </h3>
+      <ul class="space-y-2 text-sm text-aw-dim">
+        <li class="flex items-start gap-2"><span class="text-aw-orange mt-0.5">○</span> NVIDIA drivers + FFmpeg with nvenc</li>
+        <li class="flex items-start gap-2"><span class="text-aw-orange mt-0.5">○</span> Intel: <code class="text-xs">intel-media-va-driver</code></li>
+        <li class="flex items-start gap-2"><span class="text-aw-orange mt-0.5">○</span> AMD: <code class="text-xs">mesa-va-drivers</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">FAQ</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Frequently asked</h2>
+  </div>
+  <div class="max-w-2xl mx-auto space-y-3">
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        Why does DaVinci Resolve need file conversion?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        DaVinci Resolve on Linux does not support H.264/H.265 files in the free version. ProRes and DNxHR are intermediate codecs that are fully supported across all Resolve editions — including the free Linux version.
+      </div>
+    </details>
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        ProRes vs DNxHR — which should I use?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        Both are equally high-quality intermediate codecs. ProRes is more common in Apple-ecosystem workflows, while DNxHR is more cross-platform. Choose whichever your editing team prefers — the quality difference is negligible.
+      </div>
+    </details>
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        Does Prorez support hardware acceleration?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        Yes. Prorez automatically detects available GPU encoders: NVIDIA NVENC (H.264, HEVC, AV1), Intel VA-API and QSV (H.264, HEVC, AV1), and AMD AMF (H.264, HEVC, AV1). All configuration is handled automatically.
+      </div>
+    </details>
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        Why are converted files so large?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        Intermediate codecs like ProRes and DNxHR are <em>intra-frame</em> — every frame is stored independently for maximum quality and editability, at the cost of larger file sizes. Use the "HQ" presets for mastering and "LT/SQ" presets for smaller proxy files.
+      </div>
+    </details>
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        Can I convert multiple files at once?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        Yes. Prorez has a queue system that processes files one at a time sequentially. You can drop multiple files at once, and they will be converted in order with real-time progress tracking.
+      </div>
+    </details>
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        What audio codec should I use?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        PCM 16-bit (pcm_s16le) is recommended for DaVinci Resolve — it's uncompressed, widely compatible, and preserves full audio fidelity. AAC is also available if you need smaller file sizes.
+      </div>
+    </details>
+    <details class="group bg-aw-surface border border-aw-border rounded-gtk-lg overflow-hidden">
+      <summary class="flex items-center justify-between px-5 py-4 cursor-pointer select-none font-medium">
+        Does Prorez work on Windows or macOS?
+        <svg class="faq-chevron w-5 h-5 text-aw-dim flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="px-5 pb-4 text-aw-dim text-sm leading-relaxed border-t border-aw-border pt-3">
+        Prorez is built for Linux with GTK 3. Windows and macOS have not been tested yet, but we welcome feedback and contributions from users who try it on those platforms. In the meantime, you can achieve the same results with FFmpeg directly from the terminal.
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- Changelog -->
+<section id="changelog" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Changelog</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Release history</h2>
+  </div>
+  <div class="max-w-2xl mx-auto bg-aw-surface border border-aw-border rounded-gtk-lg p-6 md:p-8">
+    <p class="text-aw-dim mb-4">Changelog is maintained on GitHub. See the full release history:</p>
+    <a href="https://github.com/dezuhan/prorez/releases" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-aw-accent hover:underline font-medium">
+      View all releases on GitHub
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap" class="max-w-5xl mx-auto px-4 py-16 md:py-20">
+  <div class="text-center mb-12">
+    <span class="text-aw-accent text-sm font-semibold uppercase tracking-wider">Roadmap</span>
+    <h2 class="text-3xl md:text-4xl font-bold mt-2">Open discussion</h2>
+  </div>
+  <div class="max-w-2xl mx-auto bg-aw-surface border border-aw-border rounded-gtk-lg p-6 md:p-8 text-center">
+    <svg class="w-10 h-10 text-aw-accent mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+    <p class="text-aw-dim leading-relaxed">
+      Prorez is feature-complete for its intended use case. There is no formal roadmap at this time.
+    </p>
+    <p class="text-aw-dim leading-relaxed mt-2">
+      Contributions, ideas, and feedback are welcome!
+      Open an issue or start a discussion on GitHub.
+    </p>
+    <a href="https://github.com/dezuhan/prorez/issues" target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-5 border border-aw-border hover:border-aw-dim text-aw-text font-semibold px-5 py-2.5 rounded-gtk transition-colors">
+      GitHub Issues
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    </a>
+  </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-aw-border mt-12">
+  <div class="max-w-5xl mx-auto px-4 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-aw-dim">
+    <div class="flex items-center gap-2">
+      <span class="text-aw-accent">▣</span> Prorez &mdash; FFmpeg GPU Video Converter
+    </div>
+    <div class="flex items-center gap-5">
+      <a href="https://instagram.com/dezuhan" target="_blank" rel="noopener" class="hover:text-aw-text transition-colors">Instagram</a>
+      <a href="https://linkedin.com/in/dzuhan" target="_blank" rel="noopener" class="hover:text-aw-text transition-colors">LinkedIn</a>
+      <a href="https://github.com/dezuhan" target="_blank" rel="noopener" class="hover:text-aw-text transition-colors">GitHub</a>
+      <span class="text-aw-dim/50">·</span>
+      <span>GNU GPLv2</span>
+    </div>
+    <div class="text-aw-dim/60 text-xs">
+      Built by <a href="https://github.com/dezuhan" class="hover:text-aw-text transition-colors">Dezuhan</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
