@@ -76,7 +76,6 @@ Output files are saved as `prorez_convert_[original_name].[ext]` in the source f
 ## Roadmap
 
 - [ ] **RPM package** — `.rpm` for Fedora/RHEL (via COPR)
-- [ ] **Flatpak** — universal Linux package on Flathub
 
 ## Contributing
 
