@@ -1,4 +1,4 @@
-![](./assets/screenshot.png)
+![](./assets/Screenshot_Dark_Mode.png)
 
 # Prorez
 
@@ -48,7 +48,7 @@ sudo pacman -S python-gobject gtk3 ffmpeg
 ```bash
 git clone https://github.com/dezuhan/prorez.git
 cd prorez
-pip install -r requirements.txt
+python3 prorez.py
 ```
 
 ## Usage
