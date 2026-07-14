@@ -51,6 +51,18 @@ cd prorez
 python3 prorez.py
 ```
 
+### Desktop Shortcut (Optional)
+
+```bash
+# Install system-wide
+sudo cp -r . /opt/prorez
+sudo cp prorez.desktop /usr/share/applications/
+
+# Or user-only
+cp prorez.desktop ~/.local/share/applications/
+# Edit the Exec= and Icon= paths in the .desktop file to match your install location
+```
+
 ## Usage
 
 ```bash

@@ -558,6 +558,10 @@ class SimpleWindow(Gtk.ApplicationWindow):
         self.set_default_size(900, 600)
         self.set_border_width(12)
 
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "icon.png")
+        if os.path.exists(icon_path):
+            self.set_icon_from_file(icon_path)
+
         self.hw_encoders, self.sw_encoders = get_encoder_groups()
         self.presets = self._build_presets()
 

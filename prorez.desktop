@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Prorez
+Comment=Drag & drop video converter for DaVinci Resolve on Linux
+GenericName=Video Converter
+Categories=AudioVideo;Video;
+Keywords=ffmpeg;davinci;resolve;prores;dnxhr;convert;video;gpu;
+Type=Application
+Exec=python3 /opt/prorez/prorez.py
+Icon=/opt/prorez/assets/icon.png
+Terminal=false
+StartupNotify=true
